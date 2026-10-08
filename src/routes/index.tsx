@@ -17,6 +17,7 @@ import {
   Clock,
   PartyPopper,
 } from "lucide-react";
+import JSZip from "jszip";
 import { isEngineCached, loadEngine, terminateEngine } from "@/lib/ffmpeg-engine";
 
 export const Route = createFileRoute("/")({
@@ -288,7 +289,6 @@ function Index() {
     if (done.length === 1) return triggerDownload(done[0].url!, done[0].outName);
     setZipping(true);
     try {
-      const { default: JSZip } = await import("jszip");
       const zip = new JSZip();
       done.forEach((d) => zip.file(d.outName, d.blob!));
       const blob = await zip.generateAsync({ type: "blob", compression: "STORE" });
