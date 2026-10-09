@@ -49,7 +49,7 @@ interface Item {
   outName: string;
   status: Status;
   progress: number;
-  error?: string;
+  error?: string | undefined;
   blob?: Blob;
   url?: string;
 }
@@ -286,7 +286,8 @@ function Index() {
   const done = items.filter((i) => i.status === "completed");
   const downloadAll = async () => {
     if (!done.length) return;
-    if (done.length === 1) return triggerDownload(done[0].url!, done[0].outName);
+    const first = done[0];
+    if (done.length === 1 && first) return triggerDownload(first.url!, first.outName);
     setZipping(true);
     try {
       const zip = new JSZip();
