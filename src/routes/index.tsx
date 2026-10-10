@@ -56,7 +56,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-type Item = Omit<JobRecord, "output"> & { blob?: Blob };
+type Item = Omit<JobRecord, "output"> & { blob?: Blob | undefined };
 type Engine = "checking" | "downloading" | "ready" | "needs-internet" | "error";
 
 const EXTS = ["mp4", "mov", "avi", "mkv", "webm", "m4v", "3gp", "mpeg", "mpg", "wmv", "flv"];
