@@ -19,11 +19,11 @@ export interface JobRecord {
   outName: string;
   status: JobStatus;
   progress: number;
-  error?: string;
+  error?: string | undefined;
   attempts: number;
   createdAt: number;
-  input?: Blob; // removed once a valid MP3 is stored
-  output?: Blob; // only set together with status "completed"
+  input?: Blob | undefined; // removed once a valid MP3 is stored
+  output?: Blob | undefined; // only set together with status "completed"
 }
 
 const DB = "v2mp3";
