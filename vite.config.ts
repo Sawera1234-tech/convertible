@@ -43,6 +43,16 @@ export default defineConfig({
                 cacheName: "v2mp3-pages-v1",
                 networkTimeoutSeconds: 3,
                 expiration: { maxEntries: 10 },
+                plugins: [
+                  {
+                    // Offline launch from any URL (e.g. home-screen "/?source=pwa"):
+                    // fall back to the cached app page instead of the browser's offline screen.
+                    handlerDidError: async () =>
+                      (await caches.match("/", { cacheName: "v2mp3-pages-v1", ignoreSearch: true })) ||
+                      (await caches.match("/", { ignoreSearch: true })) ||
+                      Response.error(),
+                  },
+                ],
               },
             },
             {
