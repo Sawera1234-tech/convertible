@@ -77,6 +77,7 @@ export async function patchJob(id: string, patch: Partial<JobRecord>) {
     };
     t.oncomplete = () => resolve();
     t.onerror = () => reject(t.error);
+    t.onabort = () => reject(t.error);
   });
 }
 
@@ -84,5 +85,5 @@ export async function patchJob(id: string, patch: Partial<JobRecord>) {
 export function looksLikeMp3(b: Uint8Array) {
   if (b.length < 128) return false;
   if (b[0] === 0x49 && b[1] === 0x44 && b[2] === 0x33) return true;
-  return b[0] === 0xff && (b[1]! & 0xe0) === 0xe0;
+  return b[0] === 0xff && ((b[1] ?? 0) & 0xe0) === 0xe0;
 }

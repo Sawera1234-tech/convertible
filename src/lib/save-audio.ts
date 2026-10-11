@@ -47,7 +47,8 @@ export async function saveToFolder(files: { name: string; blob: Blob }[]): Promi
 export async function shareFiles(files: { name: string; blob: Blob }[]): Promise<SaveResult> {
   const list = files.map((f) => new File([f.blob], f.name, { type: "audio/mpeg" }));
   try {
-    await navigator.share({ files: list, title: list.length > 1 ? "MP3 files" : list[0]!.name });
+    if (!list.length) return "cancelled";
+    await navigator.share({ files: list, title: list.length > 1 ? "MP3 files" : list[0]?.name ?? "MP3 file" });
     return "shared";
   } catch (e) {
     if ((e as Error)?.name === "AbortError") return "cancelled";
