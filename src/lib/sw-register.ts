@@ -1,3 +1,4 @@
+// NOTE: This cache name MUST match the one defined in vite.config.ts workbox runtimeCaching
 /// <reference types="vite-plugin-pwa/client" />
 // Single registration point for the app-shell service worker.
 

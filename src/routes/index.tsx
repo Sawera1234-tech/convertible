@@ -34,6 +34,7 @@ import {
   type JobStatus,
 } from "@/lib/job-store";
 import { canPickFolder, canShareFiles, downloadBlob, saveToFolder, shareFiles } from "@/lib/save-audio";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -208,7 +209,7 @@ function Index() {
       });
     }
     setItems((prev) => [...prev, ...added]);
-    added.forEach((a) => putJob(a).catch(() => {}));
+    added.forEach((a) => putJob(a).catch(() => setNotice("Your device could not keep this video for recovery. Keep the app open until conversion finishes, then download the MP3.")));
     setNotice(msgs.length ? msgs.join(" ") : null);
   };
 
@@ -283,8 +284,13 @@ function Index() {
         // One atomic write: MP3 stored + input dropped + status completed together,
         // so a crash can never leave a half-written or duplicate result.
         const { blob: _b, input: _i, ...meta } = current;
-        await putJob({ ...meta, status: "completed", progress: 100, attempts, output: blob, error: undefined }).catch(() => {});
-        update(item.id, { status: "completed", progress: 100, blob, input: undefined, error: undefined }, false);
+        try {
+          await putJob({ ...meta, status: "completed", progress: 100, attempts, output: blob, error: undefined });
+          update(item.id, { status: "completed", progress: 100, blob, input: undefined, error: undefined }, false);
+        } catch {
+          update(item.id, { status: "completed", progress: 100, blob, input: undefined, error: undefined }, false);
+          setNotice("This MP3 is ready, but your device could not keep it after closing the app. Download it now before leaving.");
+        }
       } catch (e) {
         if (cancelRef.current) {
           update(item.id, { status: "cancelled", progress: 0 });
@@ -395,27 +401,27 @@ function Index() {
         files.forEach((f) => downloadBlob(f.blob, f.name));
         r = "downloaded" as const;
       }
-      const n = files.length > 1 ? `${files.length} MP3 files` : `"${files[0]!.name}"`;
+      const n = files.length > 1 ? `${files.length} MP3 files` : `"${files[0]?.name ?? "MP3"}"`;
       if (r === "saved-folder")
         setNotice(`Saved ${n} to the folder you chose. Your music player may need to refresh its library to show new songs.`);
       else if (r === "shared")
-        setNotice(`${n} sent to the app you picked. If you saved into Files › Music, your music player may need a library refresh.`);
+        setNotice(`The share menu closed for ${n}. Check the app you picked to confirm the file was saved. Your music player may need a library refresh.`);
       else if (r === "downloaded")
-        setNotice(`${n} saved to your Downloads folder. Most music players find songs there after a library refresh.`);
+        setNotice(`Download requested for ${n}. Check your browser's download location, usually Downloads. Your music player may need a library refresh.`);
     } catch {
       setNotice("Saving was not possible here. Use the Download button instead.");
     }
   };
 
-  const done = items.filter((i) => i.status === "completed" && i.blob);
+  const done = items.filter((i): i is Item & { blob: Blob } => i.status === "completed" && !!i.blob);
   const downloadAll = async () => {
     if (!done.length) return;
     const first = done[0];
-    if (done.length === 1 && first) return downloadBlob(first.blob!, first.outName);
+    if (done.length === 1 && first) return downloadBlob(first.blob, first.outName);
     setZipping(true);
     try {
       const zip = new JSZip();
-      done.forEach((d) => zip.file(d.outName, d.blob!));
+      done.forEach((d) => zip.file(d.outName, d.blob));
       const blob = await zip.generateAsync({ type: "blob", compression: "STORE" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -451,6 +457,8 @@ function Index() {
               <EngineBadge engine={engine} />
             </div>
           </div>
+          <div className="flex shrink-0 items-center gap-2">
+          <ThemeToggle />
           {installEvt && (
             <button
               onClick={async () => {
@@ -460,9 +468,10 @@ function Index() {
               }}
               className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 text-sm font-semibold text-foreground shadow-card transition hover:bg-accent"
             >
-              <Smartphone className="h-4 w-4" /> Install App
+              <Smartphone className="h-4 w-4" /> <span className="hidden sm:inline">Install App</span><span className="sm:hidden">Install</span>
             </button>
           )}
+          </div>
         </header>
 
         <p className="mt-5 text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl">
@@ -552,7 +561,7 @@ function Index() {
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
             <span>
               Keep this app open while converting. Your phone may pause it if you switch apps or lock the screen. Finished
-              songs are always kept, and unfinished videos restart automatically when you come back.
+              songs are kept on this device when storage is available, and interrupted videos restart when you reopen it.
             </span>
           </div>
         )}
@@ -590,7 +599,7 @@ function Index() {
                     {it.status === "completed" && it.blob ? (
                       <div className="flex items-center gap-1.5">
                         <button
-                          onClick={() => saveAudio([{ name: it.outName, blob: it.blob! }])}
+                          onClick={() => { if (it.blob) saveAudio([{ name: it.outName, blob: it.blob }]); }}
                           aria-label={`Save ${it.outName} to Music`}
                           title="Save to Music"
                           className="rounded-full bg-secondary p-2 text-secondary-foreground"
@@ -598,7 +607,7 @@ function Index() {
                           <FolderDown className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => downloadBlob(it.blob!, it.outName)}
+                          onClick={() => { if (it.blob) downloadBlob(it.blob, it.outName); }}
                           className="inline-flex items-center gap-1 rounded-full bg-success-soft px-3 py-2 text-xs font-bold text-success"
                         >
                           <Download className="h-4 w-4" /> Download
@@ -663,13 +672,13 @@ function Index() {
                     Download All MP3{done.length > 1 ? ` (${done.length})` : ""}
                   </button>
                   <button
-                    onClick={() => saveAudio(done.map((d) => ({ name: d.outName, blob: d.blob! })))}
+                    onClick={() => saveAudio(done.map((d) => ({ name: d.outName, blob: d.blob })))}
                     className="flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card py-3.5 text-base font-bold text-foreground shadow-card"
                   >
                     <FolderDown className="h-5 w-5" /> Save Audio to Music
                   </button>
                   <p className="text-center text-xs text-muted-foreground">
-                    On Android, choose Files › Music in the share menu. Your music player may need a library refresh to show new songs.
+                    Downloads usually go to Downloads. On Android, move MP3s to Music using your Files app, or choose a file-saving app if the share menu offers one. Refresh your music player's library if needed. This web app cannot force Android to scan songs; automatic Music-folder saving and scanning requires a native wrapper with Android permissions, not a TWA alone.
                   </p>
                 </>
               )}
