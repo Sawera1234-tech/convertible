@@ -283,12 +283,13 @@ function Index() {
         const blob = new Blob([out.slice().buffer], { type: "audio/mpeg" });
         // One atomic write: MP3 stored + input dropped + status completed together,
         // so a crash can never leave a half-written or duplicate result.
+        const { blob: _b, input: _i, ...meta } = current;
         try {
           await putJob({ ...meta, status: "completed", progress: 100, attempts, output: blob, error: undefined });
           update(item.id, { status: "completed", progress: 100, blob, input: undefined, error: undefined }, false);
-        } catch (e) {
+        } catch {
           update(item.id, { status: "completed", progress: 100, blob, input: undefined, error: undefined }, false);
-          setNotice("Job finished, but your device storage is full. Download this MP3 now, as it cannot be saved for later.");
+          setNotice("This MP3 is ready, but your device could not keep it after closing the app. Download it now before leaving.");
         }
       } catch (e) {
         if (cancelRef.current) {
