@@ -1,5 +1,10 @@
 # Converter improvements
 
+- [ ] Add colorful device-local themes without changing the layout.
+- [ ] Add per-file cancellation that lets the remaining batch continue.
+- [ ] Preserve original MP3 download names and optimize conversion without reducing bitrate.
+- [ ] Verify theme persistence, cancellation, remaining conversions, and named playable downloads.
+
 - [x] Add a persistent dark-mode toggle while preserving the layout.
 - [x] Test real offline conversion, saved results, interruption recovery and MP3/ZIP downloads in Chromium; both completed outputs retained after closing, interrupted job restarted once and completed.
 - [ ] Verify installed offline cold startup: blocked because localhost development disables the production service worker; requires the updated published app.
