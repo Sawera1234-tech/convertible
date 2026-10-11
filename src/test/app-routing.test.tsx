@@ -1,6 +1,9 @@
 import { QueryClient } from "@tanstack/react-query";
 import { createRouter, rootRouteId } from "@tanstack/react-router";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+// Route matching does not need a production-only service-worker virtual module.
+vi.mock("@/lib/sw-register", () => ({ registerAppServiceWorker: vi.fn() }));
 
 import { routeTree } from "@/routeTree.gen";
 
