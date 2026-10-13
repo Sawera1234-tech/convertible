@@ -478,7 +478,7 @@ function Index() {
   const anyFailed = items.some((i) => i.status === "failed");
 
   return (
-    <main className="min-h-screen bg-background pb-16 font-sans">
+    <main className="min-h-screen pb-16 font-sans">
       <div className="mx-auto w-full max-w-xl px-4 pt-6 sm:pt-10">
         <header className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
