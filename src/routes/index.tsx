@@ -76,7 +76,12 @@ function extOf(name: string) {
 }
 function baseOf(name: string) {
   const i = name.lastIndexOf(".");
-  return i > 0 ? name.slice(0, i) : name;
+  const base = (i > 0 ? name.slice(0, i) : name)
+    .replace(/[\\/:*?"<>|\u0000-\u001f]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^\.+|\.+$/g, "");
+  return base || "audio";
 }
 const isPending = (s: JobStatus) => s !== "completed";
 
@@ -93,6 +98,7 @@ function Index() {
   const [restored, setRestored] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const cancelRef = useRef(false);
+  const cancelOneRef = useRef<string | null>(null);
   const runningRef = useRef(false);
   const hiddenDuringJob = useRef(false);
   const itemsRef = useRef<Item[]>([]);
@@ -256,7 +262,7 @@ function Index() {
     for (const item of queue) {
       if (cancelRef.current) break;
       const current = itemsRef.current.find((i) => i.id === item.id);
-      if (!current || current.status === "completed" || !current.input) continue;
+      if (!current || current.status === "completed" || current.status === "cancelled" || !current.input) continue;
       hiddenDuringJob.current = document.hidden;
       const attempts = (current.attempts ?? 0) + 1;
       update(item.id, { status: "converting", progress: 0, attempts });
@@ -275,8 +281,12 @@ function Index() {
         ff.on("progress", onProg);
         const data = new Uint8Array(await current.input.arrayBuffer());
         await ff.writeFile(inName, data);
-        const code = await ff.exec(["-i", inName, "-vn", "-map", "0:a:0", "-c:a", "libmp3lame", "-b:a", "192k", outName]);
-        if (cancelRef.current) throw new Error("cancelled");
+        // Same 192 kbps bitrate; a faster encoder preset and skipping video/subtitle/data streams.
+        const code = await ff.exec([
+          "-i", inName, "-vn", "-sn", "-dn", "-map", "0:a:0",
+          "-c:a", "libmp3lame", "-b:a", "192k", "-compression_level", "5", outName,
+        ]);
+        if (cancelRef.current || cancelOneRef.current === item.id) throw new Error("cancelled");
         if (code !== 0) throw new Error("exec failed");
         const out = (await ff.readFile(outName)) as Uint8Array;
         if (!looksLikeMp3(out)) throw new Error("invalid output");
@@ -295,6 +305,16 @@ function Index() {
         if (cancelRef.current) {
           update(item.id, { status: "cancelled", progress: 0 });
           break;
+        }
+        if (cancelOneRef.current === item.id) {
+          cancelOneRef.current = null;
+          update(item.id, { status: "cancelled", progress: 0, error: undefined });
+          try {
+            ff = await loadEngine();
+          } catch {
+            break;
+          }
+          continue;
         }
         const msg = String((e as Error)?.message ?? "");
         const oom = /memory|allocation|RangeError|Array buffer/i.test(msg);
@@ -377,6 +397,17 @@ function Index() {
     cancelRef.current = true;
     terminateEngine();
     loadEngine().catch(() => {});
+  };
+
+  /** Cancel one song; the rest of the batch keeps converting. */
+  const cancelOne = (id: string) => {
+    const it = itemsRef.current.find((i) => i.id === id);
+    if (!it) return;
+    if (it.status === "converting") {
+      cancelOneRef.current = id;
+      terminateEngine();
+    }
+    update(id, { status: "cancelled", progress: 0, error: undefined });
   };
 
   const remove = (id: string) => {
@@ -614,7 +645,11 @@ function Index() {
                         </button>
                       </div>
                     ) : (
-                      it.status !== "converting" && (
+                      running && (it.status === "converting" || it.status === "queued" || it.status === "resuming") ? (
+                        <button onClick={() => cancelOne(it.id)} aria-label={`Cancel ${it.name}`} className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-2 text-xs font-bold text-secondary-foreground hover:text-destructive">
+                          <X className="h-4 w-4" /> Cancel
+                        </button>
+                      ) : (
                         <button onClick={() => remove(it.id)} aria-label={`Remove ${it.name}`} className="rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-destructive">
                           <X className="h-4 w-4" />
                         </button>
