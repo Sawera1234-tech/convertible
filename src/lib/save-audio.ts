@@ -4,15 +4,22 @@
 export type SaveResult = "saved-folder" | "shared" | "downloaded" | "cancelled";
 
 export function downloadBlob(blob: Blob, name: string) {
-  const file = blob.type === "audio/mpeg" ? blob : new Blob([blob], { type: "audio/mpeg" });
+  const safe = name.toLowerCase().endsWith(".mp3") || name.toLowerCase().endsWith(".zip") ? name : `${name}.mp3`;
+  const type = safe.toLowerCase().endsWith(".zip") ? "application/zip" : "audio/mpeg";
+  // A named File (not an anonymous Blob) keeps the original name on browsers that
+  // otherwise fall back to a numeric blob id when saving.
+  const file = new File([blob], safe, { type });
   const url = URL.createObjectURL(file);
   const a = document.createElement("a");
   a.href = url;
-  a.download = name;
+  a.download = safe;
+  a.rel = "noopener";
+  a.style.display = "none";
   document.body.appendChild(a);
   a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  // Keep the link and URL alive long enough for the browser to read the filename.
+  setTimeout(() => a.remove(), 5_000);
+  setTimeout(() => URL.revokeObjectURL(url), 120_000);
 }
 
 export const canPickFolder = () => typeof window !== "undefined" && "showDirectoryPicker" in window;
