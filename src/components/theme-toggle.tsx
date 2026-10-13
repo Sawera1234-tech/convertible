@@ -1,47 +1,95 @@
-import { useEffect, useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Check, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const THEME_KEY = "v2mp3-theme";
 
+type ThemeId = "light" | "dark" | "ocean" | "aurora" | "berry" | "galaxy";
+const THEMES: { id: ThemeId; label: string; dark: boolean; swatch: string }[] = [
+  { id: "light", label: "Sunrise", dark: false, swatch: "linear-gradient(135deg,#ff6a5b,#ffb347)" },
+  { id: "ocean", label: "Ocean", dark: false, swatch: "linear-gradient(135deg,#1fa2ff,#12d8c4)" },
+  { id: "berry", label: "Berry", dark: false, swatch: "linear-gradient(135deg,#e5408a,#a259ff)" },
+  { id: "dark", label: "Midnight", dark: true, swatch: "linear-gradient(135deg,#2b2b30,#ff7a5c)" },
+  { id: "aurora", label: "Aurora", dark: true, swatch: "linear-gradient(135deg,#0f3b3a,#34e3a0)" },
+  { id: "galaxy", label: "Galaxy", dark: true, swatch: "linear-gradient(135deg,#1b1347,#b06bff)" },
+];
+const CLASSES = THEMES.map((t) => `theme-${t.id}`);
+
+function applyTheme(id: ThemeId) {
+  const t = THEMES.find((x) => x.id === id) ?? THEMES[0]!;
+  const root = document.documentElement;
+  root.classList.remove(...CLASSES);
+  root.classList.add(`theme-${t.id}`);
+  root.classList.toggle("dark", t.dark);
+}
+
 export function ThemeToggle() {
-  const [dark, setDark] = useState(false);
+  const [theme, setTheme] = useState<ThemeId>("light");
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const system = window.matchMedia("(prefers-color-scheme: dark)");
-    const apply = () => {
+    const sync = () => {
       let saved: string | null = null;
       try { saved = localStorage.getItem(THEME_KEY); } catch { /* storage can be unavailable */ }
-      const next = saved === "dark" || (saved !== "light" && system.matches);
-      document.documentElement.classList.toggle("dark", next);
-      setDark(next);
+      const next = (THEMES.some((t) => t.id === saved) ? saved : system.matches ? "dark" : "light") as ThemeId;
+      applyTheme(next);
+      setTheme(next);
     };
-    apply();
-    system.addEventListener("change", apply);
-    window.addEventListener("storage", apply);
+    sync();
+    system.addEventListener("change", sync);
+    window.addEventListener("storage", sync);
     return () => {
-      system.removeEventListener("change", apply);
-      window.removeEventListener("storage", apply);
+      system.removeEventListener("change", sync);
+      window.removeEventListener("storage", sync);
     };
   }, []);
 
-  const label = dark ? "Switch to light mode" : "Switch to dark mode";
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: PointerEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [open]);
+
+  const choose = (id: ThemeId) => {
+    applyTheme(id);
+    setTheme(id);
+    setOpen(false);
+    try { localStorage.setItem(THEME_KEY, id); } catch { /* keep the session choice */ }
+  };
+
   return (
-    <Button
-      variant="outline"
-      size="icon"
-      className="h-10 w-10 shrink-0 rounded-full bg-card text-foreground shadow-card"
-      aria-label={label}
-      aria-pressed={dark}
-      title={label}
-      onClick={() => {
-        const next = !dark;
-        setDark(next);
-        document.documentElement.classList.toggle("dark", next);
-        try { localStorage.setItem(THEME_KEY, next ? "dark" : "light"); } catch { /* keep the session choice */ }
-      }}
-    >
-      {dark ? <Sun /> : <Moon />}
-    </Button>
+    <div ref={ref} className="relative">
+      <Button
+        variant="outline"
+        size="icon"
+        className="h-10 w-10 shrink-0 rounded-full bg-card text-foreground shadow-card"
+        aria-label="Choose theme"
+        aria-expanded={open}
+        title="Choose theme"
+        onClick={() => setOpen((o) => !o)}
+      >
+        <Palette />
+      </Button>
+      {open && (
+        <div role="menu" className="absolute right-0 z-50 mt-2 w-48 rounded-2xl border border-border bg-popover p-2 text-popover-foreground shadow-card">
+          {THEMES.map((t) => (
+            <button
+              key={t.id}
+              role="menuitemradio"
+              aria-checked={theme === t.id}
+              onClick={() => choose(t.id)}
+              className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-sm font-semibold hover:bg-secondary"
+            >
+              <span className="h-6 w-6 shrink-0 rounded-full border border-border" style={{ background: t.swatch }} />
+              <span className="flex-1 text-left">{t.label}</span>
+              {theme === t.id && <Check className="h-4 w-4 text-primary" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

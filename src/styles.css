@@ -146,6 +146,77 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+/* Colorful themes: same layout, different palettes + soft background glow. */
+:root {
+  --app-glow: radial-gradient(60rem 40rem at 10% -10%, oklch(0.9 0.08 40 / 55%), transparent 60%),
+    radial-gradient(50rem 35rem at 110% 10%, oklch(0.92 0.08 80 / 45%), transparent 60%);
+}
+.dark {
+  --app-glow: radial-gradient(60rem 40rem at 10% -10%, oklch(0.4 0.12 32 / 35%), transparent 60%),
+    radial-gradient(50rem 35rem at 110% 20%, oklch(0.35 0.1 60 / 25%), transparent 60%);
+}
+.theme-ocean {
+  --background: oklch(0.975 0.015 220);
+  --secondary: oklch(0.95 0.025 215);
+  --muted: oklch(0.95 0.02 215);
+  --accent: oklch(0.94 0.04 210);
+  --accent-foreground: oklch(0.42 0.12 230);
+  --border: oklch(0.9 0.025 220);
+  --input: oklch(0.9 0.025 220);
+  --primary: oklch(0.62 0.15 235);
+  --ring: oklch(0.62 0.15 235);
+  --gradient-brand: linear-gradient(135deg, oklch(0.64 0.17 245), oklch(0.78 0.13 185));
+  --shadow-brand: 0 10px 30px -10px oklch(0.6 0.16 235 / 55%);
+  --app-glow: radial-gradient(60rem 40rem at 0% -10%, oklch(0.85 0.1 230 / 55%), transparent 60%),
+    radial-gradient(50rem 35rem at 110% 15%, oklch(0.88 0.1 180 / 50%), transparent 60%);
+}
+.theme-berry {
+  --background: oklch(0.978 0.015 340);
+  --secondary: oklch(0.955 0.025 330);
+  --muted: oklch(0.955 0.02 330);
+  --accent: oklch(0.94 0.045 330);
+  --accent-foreground: oklch(0.45 0.17 340);
+  --border: oklch(0.91 0.025 330);
+  --input: oklch(0.91 0.025 330);
+  --primary: oklch(0.6 0.21 350);
+  --ring: oklch(0.6 0.21 350);
+  --gradient-brand: linear-gradient(135deg, oklch(0.62 0.22 355), oklch(0.6 0.2 300));
+  --shadow-brand: 0 10px 30px -10px oklch(0.6 0.21 340 / 55%);
+  --app-glow: radial-gradient(60rem 40rem at 0% -10%, oklch(0.86 0.1 350 / 55%), transparent 60%),
+    radial-gradient(50rem 35rem at 110% 15%, oklch(0.85 0.1 300 / 50%), transparent 60%);
+}
+.theme-aurora {
+  --background: oklch(0.18 0.025 190);
+  --card: oklch(0.23 0.03 190);
+  --popover: oklch(0.23 0.03 190);
+  --secondary: oklch(0.29 0.035 185);
+  --muted: oklch(0.29 0.035 185);
+  --accent: oklch(0.3 0.06 165);
+  --accent-foreground: oklch(0.88 0.1 165);
+  --primary: oklch(0.78 0.16 160);
+  --primary-foreground: oklch(0.18 0.03 190);
+  --ring: oklch(0.78 0.16 160);
+  --gradient-brand: linear-gradient(135deg, oklch(0.72 0.16 165), oklch(0.7 0.14 230));
+  --shadow-brand: 0 10px 30px -10px oklch(0.7 0.16 165 / 50%);
+  --app-glow: radial-gradient(60rem 40rem at 0% -10%, oklch(0.45 0.13 165 / 45%), transparent 60%),
+    radial-gradient(50rem 35rem at 110% 20%, oklch(0.4 0.13 240 / 40%), transparent 60%);
+}
+.theme-galaxy {
+  --background: oklch(0.17 0.04 285);
+  --card: oklch(0.22 0.05 285);
+  --popover: oklch(0.22 0.05 285);
+  --secondary: oklch(0.28 0.06 285);
+  --muted: oklch(0.28 0.06 285);
+  --accent: oklch(0.3 0.08 300);
+  --accent-foreground: oklch(0.88 0.08 300);
+  --primary: oklch(0.72 0.18 300);
+  --ring: oklch(0.72 0.18 300);
+  --gradient-brand: linear-gradient(135deg, oklch(0.6 0.22 290), oklch(0.7 0.2 340));
+  --shadow-brand: 0 10px 30px -10px oklch(0.6 0.22 300 / 55%);
+  --app-glow: radial-gradient(60rem 40rem at 0% -10%, oklch(0.42 0.18 290 / 50%), transparent 60%),
+    radial-gradient(50rem 35rem at 110% 20%, oklch(0.42 0.18 340 / 35%), transparent 60%);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -153,6 +224,9 @@
 
   body {
     background-color: var(--color-background);
+    background-image: var(--app-glow);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
     color: var(--color-foreground);
   }
 }
