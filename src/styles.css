@@ -146,14 +146,18 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
-/* Colorful themes: same layout, different palettes + soft background glow. */
+/* Colorful themes: same layout, different palettes + artistic layered backgrounds. */
 :root {
   --app-glow: radial-gradient(60rem 40rem at 10% -10%, oklch(0.9 0.08 40 / 55%), transparent 60%),
-    radial-gradient(50rem 35rem at 110% 10%, oklch(0.92 0.08 80 / 45%), transparent 60%);
+    radial-gradient(50rem 35rem at 110% 10%, oklch(0.92 0.08 80 / 45%), transparent 60%),
+    radial-gradient(45rem 30rem at 50% 115%, oklch(0.92 0.07 20 / 40%), transparent 65%),
+    conic-gradient(from 210deg at 85% 90%, transparent 70%, oklch(0.9 0.06 60 / 25%) 85%, transparent 95%);
 }
 .dark {
   --app-glow: radial-gradient(60rem 40rem at 10% -10%, oklch(0.4 0.12 32 / 35%), transparent 60%),
-    radial-gradient(50rem 35rem at 110% 20%, oklch(0.35 0.1 60 / 25%), transparent 60%);
+    radial-gradient(50rem 35rem at 110% 20%, oklch(0.35 0.1 60 / 25%), transparent 60%),
+    radial-gradient(42rem 30rem at 50% 120%, oklch(0.35 0.1 20 / 30%), transparent 65%),
+    conic-gradient(from 200deg at 90% 85%, transparent 70%, oklch(0.45 0.12 40 / 18%) 85%, transparent 95%);
 }
 .theme-ocean {
   --background: oklch(0.975 0.015 220);
