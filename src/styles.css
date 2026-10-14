@@ -241,6 +241,22 @@
     background-repeat: no-repeat;
     color: var(--color-foreground);
   }
+
+  /* Custom wallpaper sits behind everything, softened so text stays readable. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: var(--app-wallpaper, none);
+    background-size: cover;
+    background-position: center;
+    opacity: 0.3;
+  }
+  .dark body::before {
+    opacity: 0.22;
+  }
 }
 
 @utility bg-brand {
