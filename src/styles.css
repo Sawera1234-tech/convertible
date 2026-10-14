@@ -172,7 +172,9 @@
   --gradient-brand: linear-gradient(135deg, oklch(0.64 0.17 245), oklch(0.78 0.13 185));
   --shadow-brand: 0 10px 30px -10px oklch(0.6 0.16 235 / 55%);
   --app-glow: radial-gradient(60rem 40rem at 0% -10%, oklch(0.85 0.1 230 / 55%), transparent 60%),
-    radial-gradient(50rem 35rem at 110% 15%, oklch(0.88 0.1 180 / 50%), transparent 60%);
+    radial-gradient(50rem 35rem at 110% 15%, oklch(0.88 0.1 180 / 50%), transparent 60%),
+    radial-gradient(46rem 32rem at 50% 118%, oklch(0.86 0.09 250 / 45%), transparent 65%),
+    conic-gradient(from 180deg at 20% 105%, transparent 65%, oklch(0.85 0.08 200 / 30%) 82%, transparent 95%);
 }
 .theme-berry {
   --background: oklch(0.978 0.015 340);
@@ -187,7 +189,9 @@
   --gradient-brand: linear-gradient(135deg, oklch(0.62 0.22 355), oklch(0.6 0.2 300));
   --shadow-brand: 0 10px 30px -10px oklch(0.6 0.21 340 / 55%);
   --app-glow: radial-gradient(60rem 40rem at 0% -10%, oklch(0.86 0.1 350 / 55%), transparent 60%),
-    radial-gradient(50rem 35rem at 110% 15%, oklch(0.85 0.1 300 / 50%), transparent 60%);
+    radial-gradient(50rem 35rem at 110% 15%, oklch(0.85 0.1 300 / 50%), transparent 60%),
+    radial-gradient(46rem 32rem at 50% 118%, oklch(0.87 0.09 20 / 40%), transparent 65%),
+    conic-gradient(from 150deg at 80% 108%, transparent 65%, oklch(0.84 0.09 320 / 30%) 82%, transparent 95%);
 }
 .theme-aurora {
   --background: oklch(0.18 0.025 190);
@@ -203,7 +207,9 @@
   --gradient-brand: linear-gradient(135deg, oklch(0.72 0.16 165), oklch(0.7 0.14 230));
   --shadow-brand: 0 10px 30px -10px oklch(0.7 0.16 165 / 50%);
   --app-glow: radial-gradient(60rem 40rem at 0% -10%, oklch(0.45 0.13 165 / 45%), transparent 60%),
-    radial-gradient(50rem 35rem at 110% 20%, oklch(0.4 0.13 240 / 40%), transparent 60%);
+    radial-gradient(50rem 35rem at 110% 20%, oklch(0.4 0.13 240 / 40%), transparent 60%),
+    radial-gradient(44rem 30rem at 50% 125%, oklch(0.5 0.14 140 / 35%), transparent 65%),
+    conic-gradient(from 190deg at 15% 100%, transparent 68%, oklch(0.55 0.15 170 / 22%) 84%, transparent 96%);
 }
 .theme-galaxy {
   --background: oklch(0.17 0.04 285);
@@ -218,7 +224,9 @@
   --gradient-brand: linear-gradient(135deg, oklch(0.6 0.22 290), oklch(0.7 0.2 340));
   --shadow-brand: 0 10px 30px -10px oklch(0.6 0.22 300 / 55%);
   --app-glow: radial-gradient(60rem 40rem at 0% -10%, oklch(0.42 0.18 290 / 50%), transparent 60%),
-    radial-gradient(50rem 35rem at 110% 20%, oklch(0.42 0.18 340 / 35%), transparent 60%);
+    radial-gradient(50rem 35rem at 110% 20%, oklch(0.42 0.18 340 / 35%), transparent 60%),
+    radial-gradient(44rem 30rem at 50% 125%, oklch(0.45 0.18 260 / 35%), transparent 65%),
+    conic-gradient(from 170deg at 85% 102%, transparent 68%, oklch(0.5 0.18 320 / 22%) 84%, transparent 96%);
 }
 
 @layer base {
